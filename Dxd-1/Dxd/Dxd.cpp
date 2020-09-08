@@ -4,6 +4,8 @@
 #include "framework.h"
 #include "Dxd.h"
 
+#include <d3d9.h>
+
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
@@ -12,11 +14,69 @@ WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
 HWND g_hWnd;
 
+// Direct 3D 및 Direct 3D Deive 변수 선언
+LPDIRECT3D9 g_pD3D = NULL;
+LPDIRECT3DDEVICE9 g_pd3dDevice = NULL;
+
 // 이 코드 모듈에 포함된 함수의 선언을 전달합니다:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
+
+HRESULT InitD3D(HWND hWnd)
+{
+	// Direct 3D 변수 초기화
+	if (NULL == (g_pD3D = Direct3DCreate9(D3D_SDK_VERSION)))
+		return E_FAIL;
+
+	// Direct 3D 파라미터 선언
+	D3DPRESENT_PARAMETERS d3dpp;
+	ZeroMemory(&d3dpp, sizeof(d3dpp));
+	d3dpp.Windowed = TRUE;
+	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;	// back, front buffer를 번갈아 써달라
+	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;	// D3D format을 윈도우와 동일하게 해달라.
+
+	// Direct 3D를 이용해 Direct 3D Device를 생성해 달라
+	if (FAILED(g_pD3D->CreateDevice(D3DADAPTER_DEFAULT,
+		D3DDEVTYPE_HAL,
+		hWnd,
+		D3DCREATE_SOFTWARE_VERTEXPROCESSING,
+		&d3dpp,
+		&g_pd3dDevice)))
+	{
+		return E_FAIL;
+	}
+}
+
+VOID Render()
+{
+	if (NULL == g_pd3dDevice)
+		return;
+
+	// 백버퍼 지우기
+	g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET,
+		D3DCOLOR_XRGB(0, 0, 255), 1.0f, 0);
+
+	// 렌더링 준비
+	g_pd3dDevice->BeginScene();
+
+	// Render here
+
+	// 렌더링 종료
+	g_pd3dDevice->EndScene();
+
+	// 버퍼 교체(페이지 플리핑)
+	g_pd3dDevice->Present(NULL, NULL, NULL, NULL);
+}
+
+VOID Cleanup()
+{
+	if (g_pd3dDevice != NULL)
+		g_pd3dDevice->Release();
+	if (g_pD3D != NULL)
+		g_pD3D->Release();
+}
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -39,14 +99,24 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         return FALSE;
     }
 
+	InitD3D(g_hWnd);
+
     MSG msg;
 
-    // 기본 메시지 루프입니다:
-    while (GetMessage(&msg, nullptr, 0, 0))
-    {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
+	while (true)
+	{
+		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
+		{
+			if (msg.message == WM_QUIT)
+				break;
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+		else {
+			// 업데이트와 렌더링
+			Render();
+		}
+	}
 
     return (int) msg.wParam;
 }
@@ -140,14 +210,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         break;
     case WM_PAINT:
-        {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
-            // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-            EndPaint(hWnd, &ps);
-        }
+		Render();
         break;
     case WM_DESTROY:
+		Cleanup();
         PostQuitMessage(0);
         break;
     default:
