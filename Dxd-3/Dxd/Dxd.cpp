@@ -6,6 +6,8 @@
 
 #include <d3d9.h>
 
+#include <d3dx9math.h>
+
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
@@ -29,6 +31,21 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     UNREFERENCED_PARAMETER(lpCmdLine);
 
     // TODO: 여기에 코드를 입력합니다.
+
+	// 벡터의 덧셈
+	D3DXVECTOR3 v1(0.f, 3.0f, 0.0f);
+	D3DXVECTOR3 v2(3.0f, 0.0f, 0.0f);
+	D3DXVECTOR3 v3;
+	D3DXVECTOR3 v4(3.0f, 3.0f, 0.0f);
+	float fLength;
+
+	v3 = v1 + v2;
+	
+	D3DXVec3Add(&v3, &v1, &v2);
+
+	// 벡터의 뺄셈
+	v3 = v1 - v2;
+	D3DXVec3Subtract(&v3, &v1, &v2);
 
     // 전역 문자열을 초기화합니다.
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
