@@ -47,6 +47,23 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	v3 = v1 - v2;
 	D3DXVec3Subtract(&v3, &v1, &v2);
 
+	// 벡터의 크기
+	fLength = D3DXVec3Length(&v4);
+
+	// 벡터의 크기 변환
+	float fScale = 2.0f;
+	D3DXVECTOR3 v5(2.0f, 1.0f, 0.0f);
+
+	D3DXVec3Scale(&v5, &v5, fScale);
+
+	// 단위 벡터(normalized vector)
+	D3DXVECTOR3 v6(2.0f, 2.0f, 3.0f);
+	D3DXVECTOR3 vResult;
+	float fNormalize;
+
+	D3DXVec3Normalize(&vResult, &v6);
+	fNormalize = D3DXVec3Length(&vResult);
+
     // 전역 문자열을 초기화합니다.
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
     LoadStringW(hInstance, IDC_DXD, szWindowClass, MAX_LOADSTRING);
