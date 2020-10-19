@@ -64,6 +64,23 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	D3DXVec3Normalize(&vResult, &v6);
 	fNormalize = D3DXVec3Length(&vResult);
 
+	// 벡터의 내적
+	D3DXVECTOR3 v7(3.0f, 0.0f, 0.0f);
+	D3DXVECTOR3 v8(-3.0f, 0.0f, 0.0f);
+	float fCos, fDot;// , fScale;
+
+	fDot = D3DXVec3Dot(&v7, &v8);
+	fScale = D3DXVec3Length(&v7) * D3DXVec3Length(&v8);
+	fCos = fDot / fScale;
+
+	D3DXVECTOR3 v9(3.0f, 0.0f, 0.0f);
+	D3DXVECTOR3 v10(0.0f, 3.0f, 0.0f);
+	//D3DXVECTOR3 vResult;
+
+	D3DXVec3Cross(&vResult, &v1, &v2);
+	D3DXVec3Normalize(&vResult, &vResult);
+
+
     // 전역 문자열을 초기화합니다.
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
     LoadStringW(hInstance, IDC_DXD, szWindowClass, MAX_LOADSTRING);
